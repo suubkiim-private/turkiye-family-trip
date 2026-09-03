@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>사전 준비물 | Kim&Cho Family</title>
+<style>
+:root{--ink:#332c29;--muted:#7d716b;--paper:rgba(255,253,249,.97);--line:#eadfd5;--terra:#a85f43}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:#f0dfca}.wrap{max-width:680px;margin:auto;padding:0 13px 44px}.hero{margin:0 -13px 16px;padding:28px 19px 24px;color:#fff;background:linear-gradient(135deg,rgba(126,83,61,.70),rgba(196,126,86,.65));border-radius:0 0 26px 26px}.back{color:white;text-decoration:none;font-size:12px}.hero small{display:block;margin-top:12px;letter-spacing:.12em;opacity:.84}.hero h1{font-size:28px;margin:5px 0}.hero p{margin:0;font-size:13px;opacity:.92}.status{margin-top:12px;display:inline-block;font-size:11px;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.17)}.status[data-ok="0"]{background:rgba(120,40,20,.28)}
+h2{font-size:19px;margin:22px 3px 10px}.card{background:var(--paper);border-radius:18px;padding:14px;box-shadow:0 5px 18px rgba(72,49,35,.08)}.item{display:flex;align-items:center;gap:9px;padding:11px 10px;background:#fff;border:1px solid var(--line);border-radius:12px;margin:7px 0}.item input{width:18px;height:18px;accent-color:var(--terra)}.item span{font-size:14px;font-weight:760;flex:1}.item button{border:0;background:transparent;color:#a48b80;font-size:17px;cursor:pointer}.add{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:11px}.add input{border:1px solid #ded2c8;border-radius:10px;padding:10px;font:inherit;font-size:13px}.add button{border:0;background:var(--terra);color:#fff;border-radius:10px;padding:0 15px;font-weight:800;cursor:pointer}.tip{font-size:11px;color:#7a6f69;margin:10px 3px}
+</style></head>
+<body><main class="wrap"><header class="hero"><a class="back" href="index.html">← 여행 일정으로 돌아가기</a><small>KIM&CHO FAMILY · TÜRKIYE 2026</small><h1>사전 준비물</h1><p>가족 모두 같은 체크리스트를 함께 관리하기</p><div id="syncStatus" class="status">연결 확인 중…</div></header>
+<h2>준비물 체크리스트</h2><section class="card"><div id="list"></div><div class="add"><input id="newItem" placeholder="준비물 추가"><button onclick="addItem()">＋ 추가</button></div></section><p class="tip">※ Supabase 연결 전에는 이 기기에서만 임시 저장됩니다.</p></main>
+<script src="config.js"></script>
+<script>
+const cfg=window.TRIP_CONFIG||{};
+const API=(cfg.SUPABASE_URL||"").replace(/\/$/,"")+"/rest/v1";
+const APIKEY=cfg.SUPABASE_KEY||"";
+const isConfigured=APIKEY&&cfg.SUPABASE_URL&&!cfg.SUPABASE_URL.includes("PASTE_")&&!APIKEY.includes("PASTE_");
+function setSyncStatus(text,ok=true){const el=document.getElementById("syncStatus");if(!el)return;el.textContent=text;el.dataset.ok=ok?"1":"0";}
+async function api(path,opts={}){
+ const res=await fetch(API+path,{...opts,headers:{"apikey":APIKEY,"Authorization":"Bearer "+APIKEY,"Content-Type":"application/json","Prefer":"return=minimal",...(opts.headers||{})}});
+ if(!res.ok)throw new Error(await res.text());
+ const t=await res.text();return t?JSON.parse(t):null;
+}
+const defaults=["마스크","스카프"];let items=[];
+async function load(show=true){
+ if(!isConfigured){setSyncStatus("로컬 모드 · config.js에 Supabase 키 필요",false);items=JSON.parse(localStorage.getItem("shared_packing")||"null")||defaults.map((name,i)=>({id:"l"+i,name,checked:false}));render();return}
+ try{items=await api("/packing_items?select=*&order=created_at.asc",{headers:{"Prefer":"return=representation"}})||[];render();if(show)setSyncStatus("Supabase 연결됨 · 가족 공동 편집",true)}
+ catch(e){setSyncStatus("DB 오류: "+e.message,false)}
+}
+function persist(){localStorage.setItem("shared_packing",JSON.stringify(items))}
+function render(){const root=document.getElementById("list");root.innerHTML="";items.forEach(it=>{const row=document.createElement("label");row.className="item";row.innerHTML=`<input type="checkbox" ${it.checked?"checked":""}><span></span><button type="button">×</button>`;row.querySelector("span").textContent=it.name;row.querySelector("input").onchange=e=>toggle(it,e.target.checked);row.querySelector("button").onclick=e=>{e.preventDefault();e.stopPropagation();remove(it)};root.appendChild(row)})}
+async function addItem(){const input=document.getElementById("newItem"),name=input.value.trim();if(!name)return;try{if(isConfigured)await api("/packing_items",{method:"POST",body:JSON.stringify({name,checked:false})});else{items.push({id:"l"+Date.now(),name,checked:false});persist()}input.value="";await load(false)}catch(e){alert(e.message)}}
+async function toggle(it,checked){try{if(isConfigured)await api("/packing_items?id=eq."+encodeURIComponent(it.id),{method:"PATCH",body:JSON.stringify({checked})});else{it.checked=checked;persist()}await load(false)}catch(e){alert(e.message)}}
+async function remove(it){try{if(isConfigured)await api("/packing_items?id=eq."+encodeURIComponent(it.id),{method:"DELETE"});else{items=items.filter(x=>x.id!==it.id);persist()}await load(false)}catch(e){alert(e.message)}}
+document.getElementById("newItem").addEventListener("keydown",e=>{if(e.key==="Enter")addItem()});load();setInterval(()=>{if(isConfigured)load(false)},5000);
+</script></script></body></html>
