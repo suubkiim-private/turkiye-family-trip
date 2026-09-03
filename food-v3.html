@@ -1,1097 +1,184 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>식당 · 카페 가이드</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Apple SD Gothic Neo",
-        "Noto Sans KR",
-        sans-serif;
-      background: #f6efe7;
-      color: #332c29;
-    }
-
-    .wrap {
-      width: min(100% - 24px, 680px);
-      margin: 0 auto;
-      padding: 18px 0 40px;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .back {
-      text-decoration: none;
-      color: #9a5c43;
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .sync {
-      font-size: 11px;
-      font-weight: 700;
-      color: #8f7c70;
-      text-align: right;
-    }
-
-    .sync[data-ok="1"] {
-      color: #66805c;
-    }
-
-    .sync[data-ok="0"] {
-      color: #a85445;
-    }
-
-    .hero {
-      background:
-        linear-gradient(
-          135deg,
-          rgba(255, 253, 248, 0.97),
-          rgba(248, 230, 214, 0.98)
-        );
-      border: 1px solid #e6d2c1;
-      border-radius: 24px;
-      padding: 22px 20px;
-      box-shadow: 0 8px 22px rgba(72, 49, 35, 0.09);
-      margin-bottom: 14px;
-    }
-
-    .hero h1 {
-      margin: 0 0 7px;
-      font-size: 25px;
-      line-height: 1.25;
-    }
-
-    .hero p {
-      margin: 0;
-      color: #806f65;
-      font-size: 13px;
-      line-height: 1.55;
-    }
-
-    .section {
-      background: rgba(255, 253, 249, 0.98);
-      border: 1px solid #e9d8ca;
-      border-radius: 20px;
-      padding: 16px;
-      margin-top: 12px;
-      box-shadow: 0 6px 16px rgba(72, 49, 35, 0.06);
-    }
-
-    .section-title {
-      font-size: 16px;
-      font-weight: 850;
-      margin-bottom: 11px;
-    }
-
-    .food-list {
-      display: grid;
-      gap: 7px;
-    }
-
-    .food-item {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      min-height: 43px;
-      padding: 9px 10px;
-      border-radius: 13px;
-      background: #faf5ef;
-      border: 1px solid #eee0d4;
-      cursor: pointer;
-    }
-
-    .food-item input {
-      width: 18px;
-      height: 18px;
-      accent-color: #b86b4d;
-      flex: 0 0 auto;
-    }
-
-    .food-item span {
-      flex: 1;
-      font-size: 14px;
-      line-height: 1.4;
-    }
-
-    .food-item:has(input:checked) span {
-      text-decoration: line-through;
-      opacity: 0.55;
-    }
-
-    .x {
-      border: 0;
-      background: transparent;
-      color: #b09b8f;
-      font-size: 21px;
-      cursor: pointer;
-      padding: 0 4px;
-    }
-
-    .add-row {
-      display: flex;
-      gap: 7px;
-      margin-top: 10px;
-    }
-
-    input,
-    select,
-    textarea,
-    button {
-      font: inherit;
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      border: 1px solid #dfcec1;
-      background: #fffdfa;
-      color: #332c29;
-      border-radius: 12px;
-      padding: 11px 12px;
-      outline: none;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: #ba765c;
-      box-shadow: 0 0 0 3px rgba(186, 118, 92, 0.12);
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 76px;
-      margin-top: 7px;
-    }
-
-    .primary-btn,
-    .add-btn {
-      border: 0;
-      background: #a85f43;
-      color: white;
-      font-weight: 800;
-      border-radius: 12px;
-      cursor: pointer;
-    }
-
-    .primary-btn {
-      flex: 0 0 auto;
-      padding: 0 15px;
-    }
-
-    .regions-title {
-      margin: 18px 2px 8px;
-      font-size: 17px;
-      font-weight: 900;
-    }
-
-    .region {
-      overflow: hidden;
-      border: 1px solid #e5d4c6;
-      border-radius: 20px;
-      background: #fffdf9;
-      margin-top: 10px;
-      box-shadow: 0 5px 15px rgba(72, 49, 35, 0.055);
-    }
-
-    .region-head {
-      padding: 14px 15px;
-      font-size: 16px;
-      font-weight: 900;
-      background: linear-gradient(135deg, #f8eadf, #f4dfd0);
-      border-bottom: 1px solid #ead7c8;
-    }
-
-    .list {
-      padding: 10px 12px 0;
-    }
-
-    .place {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 9px;
-      padding: 11px 2px;
-      border-bottom: 1px dashed #eadfd7;
-    }
-
-    .place:last-child {
-      border-bottom: none;
-    }
-
-    .name {
-      font-size: 14px;
-      font-weight: 850;
-      line-height: 1.4;
-    }
-
-    .meta {
-      margin-top: 3px;
-      color: #85736a;
-      font-size: 12px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-    }
-
-    .actions {
-      display: flex;
-      gap: 5px;
-      flex: 0 0 auto;
-    }
-
-    .actions a,
-    .actions button {
-      border: 1px solid #dfcec1;
-      background: #faf5ef;
-      color: #8c5c48;
-      border-radius: 9px;
-      padding: 6px 8px;
-      text-decoration: none;
-      font-size: 11px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    .form {
-      margin: 6px 12px 12px;
-      padding: 12px;
-      border-radius: 15px;
-      background: #faf5ef;
-      border: 1px solid #eee0d5;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(95px, 0.7fr);
-      gap: 7px;
-    }
-
-    .add-btn {
-      width: 100%;
-      padding: 11px 12px;
-      margin-top: 8px;
-    }
-
-    .empty {
-      color: #a08d82;
-      font-size: 12px;
-      padding: 8px 2px 12px;
-    }
-
-    @media (max-width: 440px) {
-      .wrap {
-        width: min(100% - 18px, 680px);
-      }
-
-      .hero {
-        padding: 19px 17px;
-      }
-
-      .hero h1 {
-        font-size: 23px;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>먹을 것 · 식당 · 카페 | Kim&Cho Family</title>
+<style>
+:root{--ink:#332c29;--muted:#7d716b;--paper:rgba(255,252,247,.97);--line:#eadfd5;--terra:#a85f43}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:#ead9c7}
+.bg{position:fixed;inset:0;z-index:-2;background:linear-gradient(rgba(255,248,237,.38),rgba(247,231,210,.65)),linear-gradient(140deg,#efd5b5,#e3bc96)}
+.wrap{max-width:680px;margin:auto;padding:0 13px 44px}
+.hero{margin:0 -13px 14px;padding:28px 19px 24px;color:#fff;background:linear-gradient(135deg,rgba(126,83,61,.70),rgba(196,126,86,.65));border-radius:0 0 26px 26px}
+.back{display:inline-block;color:#fff;text-decoration:none;font-size:12px;opacity:.92;margin-bottom:12px}
+.hero small{letter-spacing:.12em;opacity:.84}.hero h1{font-size:28px;margin:5px 0}.hero p{margin:0;font-size:13px;opacity:.92}
+.status{margin-top:12px;display:inline-block;font-size:11px;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.17)}.status[data-ok="0"]{background:rgba(120,40,20,.28)}
+h2{font-size:19px;margin:22px 3px 10px}
+.card{background:var(--paper);border-radius:18px;padding:14px;box-shadow:0 5px 18px rgba(72,49,35,.08);margin-bottom:12px}
+.food-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.food-item{display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border:1px solid var(--line);border-radius:12px;font-size:13px;font-weight:750}.food-item input{width:17px;height:17px;accent-color:var(--terra)}.food-item span{flex:1}.x{border:0;background:transparent;color:#a48b80;font-size:16px;cursor:pointer}
+.add{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:10px}.add input,.form input,.form select,.form textarea{width:100%;border:1px solid #ded2c8;border-radius:9px;background:#fff;padding:9px 10px;font:inherit;font-size:12px;color:var(--ink)}.add button,.add-btn{border:0;background:var(--terra);color:#fff;border-radius:10px;padding:0 14px;font-weight:800;cursor:pointer}.add-btn:disabled{opacity:.65;cursor:default}
+.nav{display:flex;gap:6px;overflow:auto;position:sticky;top:0;z-index:5;padding:9px 0;background:rgba(234,217,199,.92);backdrop-filter:blur(8px)}.nav a{flex:none;text-decoration:none;color:#594d47;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:700}
+.region{background:var(--paper);border-radius:18px;overflow:hidden;margin:11px 0;scroll-margin-top:58px;box-shadow:0 5px 18px rgba(72,49,35,.08)}.region-head{padding:13px 15px;background:rgba(244,235,226,.9);font-size:17px;font-weight:850}.list{padding:7px 13px}
+.place{padding:12px 2px;border-bottom:1px dashed #e9dfd6;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.place:last-child{border-bottom:0}.place-main{min-width:0;flex:1}.name{font-size:14px;font-weight:800;line-height:1.4}.meta{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45;white-space:normal;word-break:keep-all}.type{font-weight:700;color:#765a4e}.actions{display:flex;gap:5px;flex:none}.actions a,.actions button{border:0;background:#f3ebe4;color:#7c4a38;border-radius:999px;padding:5px 7px;font-size:10px;text-decoration:none;cursor:pointer}
+.form{margin:8px 13px 13px;padding:11px;background:#f8f3ed;border-radius:13px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}.form textarea{min-height:60px;resize:vertical}.form .add-btn{width:100%;padding:9px;margin-top:7px}.empty{font-size:12px;color:#91847c;padding:13px 2px}.tip{font-size:11px;color:#786c65;margin:10px 3px}
+@media(max-width:420px){.form-row{grid-template-columns:1fr}.food-grid{grid-template-columns:1fr}.place{gap:7px}.actions{flex-direction:column}}
+</style>
 </head>
-
-<body>
-  <main class="wrap">
-    <div class="topbar">
-      <a class="back" href="index.html">← 여행 일정</a>
-      <div id="syncStatus" class="sync">연결 확인 중...</div>
-    </div>
-
-    <section class="hero">
-      <h1>🍽️ 식당 · 카페 가이드</h1>
-      <p>
-        먹고 싶은 메뉴와 지역별 식당 · 카페를 가족과 함께 저장해두는 페이지
-      </p>
-    </section>
-
-    <section class="section">
-      <div class="section-title">먹어볼 것</div>
-
-      <div id="foodList" class="food-list"></div>
-
-      <div class="add-row">
-        <input
-          id="newFood"
-          type="text"
-          placeholder="먹고 싶은 음식 추가"
-          autocomplete="off"
-        />
-        <button
-          type="button"
-          class="primary-btn"
-          onclick="addFood()"
-        >
-          추가
-        </button>
-      </div>
-    </section>
-
-    <div class="regions-title">지역별 식당 · 카페</div>
-    <div id="regions"></div>
-  </main>
-
-  <script src="config.js"></script>
-
-  <script>
-    const cfg = window.TRIP_CONFIG || {};
-
-    const API =
-      (cfg.SUPABASE_URL || "").trim().replace(/\/+$/, "") +
-      "/rest/v1";
-
-    const APIKEY =
-      (cfg.SUPABASE_KEY || "").trim();
-
-    const isConfigured =
-      Boolean(cfg.SUPABASE_URL) &&
-      Boolean(APIKEY) &&
-      !cfg.SUPABASE_URL.includes("PASTE_") &&
-      !APIKEY.includes("PASTE_");
-
-    function setSyncStatus(text, ok = true) {
-      const el = document.getElementById("syncStatus");
-
-      if (!el) return;
-
-      el.textContent = text;
-      el.dataset.ok = ok ? "1" : "0";
-    }
-
-    async function api(path, opts = {}) {
-      const method = opts.method || "GET";
-
-      const headers = {
-        apikey: APIKEY,
-        "Content-Type": "application/json",
-        ...(opts.headers || {})
-      };
-
-      if (
-        method === "POST" ||
-        method === "PATCH" ||
-        method === "DELETE"
-      ) {
-        headers.Prefer =
-          opts.prefer || "return=minimal";
-      }
-
-      const res = await fetch(API + path, {
-        method,
-        headers,
-        body: opts.body
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-
-        console.error(
-          "Supabase API 오류",
-          res.status,
-          text
-        );
-
-        throw new Error(
-          text || `HTTP ${res.status}`
-        );
-      }
-
-      if (res.status === 204) {
-        return null;
-      }
-
-      const text = await res.text();
-
-      return text
-        ? JSON.parse(text)
-        : null;
-    }
-
-    const REGIONS = [
-      ["newcity", "이스탄불 신시가지"],
-      ["oldcity", "이스탄불 구시가지"],
-      ["asia", "이스탄불 아시아지구"],
-      ["cappadocia", "카파도키아"],
-      ["antalya", "안탈리아"],
-      ["pamukkale", "파묵칼레"]
-    ];
-
-    const defaultFoods = [
-      "현지식 아침 · 카흐발트",
-      "쾨프테",
-      "케밥",
-      "카이막",
-      "와인",
-      "바클라바",
-      "베이란",
-      "고등어케밥"
-    ];
-
-    const seedPlaces = [
-      {
-        region: "newcity",
-        name: "고등어케밥",
-        type: "먹을 것",
-        note: "이스탄불 신시가지에서 먹어보기",
-        link: ""
-      },
-      {
-        region: "newcity",
-        name: "바클라바",
-        type: "디저트",
-        note: "디저트 후보",
-        link: ""
-      },
-      {
-        region: "asia",
-        name: "베이란",
-        type: "먹을 것",
-        note: "양고기국밥",
-        link: ""
-      }
-    ];
-
-    let foods = [];
-    let places = [];
-
-    function esc(value) {
-      return String(value || "").replace(
-        /[&<>"']/g,
-        char =>
-          ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;"
-          })[char]
-      );
-    }
-
-    function linkify(value) {
-      const url = String(value || "").trim();
-
-      if (!url) return "";
-
-      if (/^https?:\/\//i.test(url)) {
-        return url;
-      }
-
-      return "https://" + url;
-    }
-
-    function persistLocal() {
-      localStorage.setItem(
-        "shared_foods",
-        JSON.stringify(foods)
-      );
-
-      localStorage.setItem(
-        "shared_places",
-        JSON.stringify(places)
-      );
-    }
-
-    async function loadAll(showStatus = true) {
-      if (!isConfigured) {
-        setSyncStatus(
-          "로컬 모드 · Supabase 설정 필요",
-          false
-        );
-
-        foods =
-          JSON.parse(
-            localStorage.getItem("shared_foods") ||
-              "null"
-          ) ||
-          defaultFoods.map((name, i) => ({
-            id: "local-food-" + i,
-            name,
-            checked: false
-          }));
-
-        places =
-          JSON.parse(
-            localStorage.getItem("shared_places") ||
-              "null"
-          ) ||
-          seedPlaces.map((place, i) => ({
-            id: "local-place-" + i,
-            ...place
-          }));
-
-        renderAll();
-
-        return;
-      }
-
-      try {
-        const [foodData, placeData] =
-          await Promise.all([
-            api(
-              "/food_items?select=*&order=created_at.asc"
-            ),
-            api(
-              "/places?select=*&order=created_at.asc"
-            )
-          ]);
-
-        foods = foodData || [];
-        places = placeData || [];
-
-        renderAll();
-
-        if (showStatus) {
-          setSyncStatus(
-            "Supabase 연결됨 · 가족 공동 편집",
-            true
-          );
-        }
-      } catch (error) {
-        console.error(error);
-
-        setSyncStatus(
-          "DB 오류: " + error.message,
-          false
-        );
-      }
-    }
-
-    function renderAll() {
-      renderFoods();
-      renderRegions();
-    }
-
-    function renderFoods() {
-      const root =
-        document.getElementById("foodList");
-
-      root.innerHTML = "";
-
-      foods.forEach(food => {
-        const row =
-          document.createElement("label");
-
-        row.className = "food-item";
-
-        row.innerHTML = `
-          <input
-            type="checkbox"
-            ${food.checked ? "checked" : ""}
-          >
-          <span>${esc(food.name)}</span>
-          <button
-            type="button"
-            class="x"
-            aria-label="삭제"
-          >
-            ×
-          </button>
-        `;
-
-        row.querySelector("input").onchange =
-          event => {
-            toggleFood(
-              food,
-              event.target.checked
-            );
-          };
-
-        row.querySelector("button").onclick =
-          event => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            deleteFood(food);
-          };
-
-        root.appendChild(row);
-      });
-    }
-
-    async function addFood() {
-      const input =
-        document.getElementById("newFood");
-
-      const name = input.value.trim();
-
-      if (!name) {
-        input.focus();
-        return;
-      }
-
-      try {
-        setSyncStatus("저장 중...", true);
-
-        if (isConfigured) {
-          await api("/food_items", {
-            method: "POST",
-            body: JSON.stringify({
-              name,
-              checked: false
-            })
-          });
-        } else {
-          foods.push({
-            id: "local-food-" + Date.now(),
-            name,
-            checked: false
-          });
-
-          persistLocal();
-        }
-
-        input.value = "";
-
-        await loadAll(false);
-
-        setSyncStatus("저장 완료 ✓", true);
-
-        resetStatusLater();
-      } catch (error) {
-        console.error(
-          "음식 추가 오류",
-          error
-        );
-
-        setSyncStatus(
-          "저장 실패",
-          false
-        );
-
-        alert(
-          "추가하지 못했습니다.\n\n" +
-            error.message
-        );
-      }
-    }
-
-    async function toggleFood(
-      food,
-      checked
-    ) {
-      try {
-        if (isConfigured) {
-          await api(
-            "/food_items?id=eq." +
-              encodeURIComponent(food.id),
-            {
-              method: "PATCH",
-              body: JSON.stringify({
-                checked
-              })
-            }
-          );
-        } else {
-          food.checked = checked;
-          persistLocal();
-        }
-
-        await loadAll(false);
-      } catch (error) {
-        console.error(
-          "체크 저장 오류",
-          error
-        );
-
-        alert(
-          "변경사항을 저장하지 못했습니다.\n\n" +
-            error.message
-        );
-
-        await loadAll(false);
-      }
-    }
-
-    async function deleteFood(food) {
-      try {
-        if (isConfigured) {
-          await api(
-            "/food_items?id=eq." +
-              encodeURIComponent(food.id),
-            {
-              method: "DELETE"
-            }
-          );
-        } else {
-          foods = foods.filter(
-            item => item.id !== food.id
-          );
-
-          persistLocal();
-        }
-
-        await loadAll(false);
-      } catch (error) {
-        console.error(
-          "음식 삭제 오류",
-          error
-        );
-
-        alert(
-          "삭제하지 못했습니다.\n\n" +
-            error.message
-        );
-      }
-    }
-
-    function renderRegions() {
-      const root =
-        document.getElementById("regions");
-
-      root.innerHTML = "";
-
-      REGIONS.forEach(
-        ([regionId, regionLabel]) => {
-          const regionPlaces =
-            places.filter(
-              place =>
-                place.region === regionId
-            );
-
-          const section =
-            document.createElement("section");
-
-          section.className = "region";
-
-          section.id = regionId;
-
-          section.innerHTML = `
-            <div class="region-head">
-              ${esc(regionLabel)}
-            </div>
-
-            <div
-              class="list"
-              id="list-${regionId}"
-            ></div>
-
-            <div class="form">
-              <div class="form-row">
-                <input
-                  id="name-${regionId}"
-                  type="text"
-                  placeholder="식당 / 카페 이름"
-                  autocomplete="off"
-                >
-
-                <select
-                  id="type-${regionId}"
-                >
-                  <option>식당</option>
-                  <option>카페</option>
-                  <option>디저트</option>
-                  <option>와인</option>
-                  <option>먹을 것</option>
-                </select>
-              </div>
-
-              <textarea
-                id="note-${regionId}"
-                placeholder="메뉴, 가격, 영업시간, 메모 등"
-              ></textarea>
-
-              <input
-                id="link-${regionId}"
-                type="text"
-                placeholder="지도 / 블로그 링크 (선택)"
-                autocomplete="off"
-                style="margin-top:7px"
-              >
-
-              <button
-                type="button"
-                class="add-btn"
-                onclick="addPlace('${regionId}', this)"
-              >
-                ＋ 이 지역에 추가
-              </button>
-            </div>
-          `;
-
-          root.appendChild(section);
-
-          const list =
-            document.getElementById(
-              "list-" + regionId
-            );
-
-          if (!regionPlaces.length) {
-            list.innerHTML = `
-              <div class="empty">
-                아직 저장한 곳이 없어요.
-              </div>
-            `;
-          }
-
-          regionPlaces.forEach(place => {
-            const row =
-              document.createElement("div");
-
-            row.className = "place";
-
-            const url =
-              linkify(place.link);
-
-            row.innerHTML = `
-              <div>
-                <div class="name">
-                  ${esc(place.name)}
-                </div>
-
-                <div class="meta">
-                  ${esc(place.type)}
-                  ${
-                    place.note
-                      ? " · " +
-                        esc(place.note)
-                      : ""
-                  }
-                </div>
-              </div>
-
-              <div class="actions">
-                ${
-                  url
-                    ? `
-                    <a
-                      href="${esc(url)}"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      링크
-                    </a>
-                  `
-                    : ""
-                }
-
-                <button
-                  type="button"
-                >
-                  삭제
-                </button>
-              </div>
-            `;
-
-            row.querySelector(
-              "button"
-            ).onclick = () =>
-              deletePlace(place);
-
-            list.appendChild(row);
-          });
-        }
-      );
-    }
-
-    async function addPlace(
-      region,
-      button
-    ) {
-      const nameInput =
-        document.getElementById(
-          "name-" + region
-        );
-
-      const typeInput =
-        document.getElementById(
-          "type-" + region
-        );
-
-      const noteInput =
-        document.getElementById(
-          "note-" + region
-        );
-
-      const linkInput =
-        document.getElementById(
-          "link-" + region
-        );
-
-      const name =
-        nameInput.value.trim();
-
-      if (!name) {
-        alert(
-          "식당 / 카페 이름을 입력해 주세요."
-        );
-
-        nameInput.focus();
-
-        return;
-      }
-
-      const item = {
-        region,
-        name,
-        type: typeInput.value,
-        note: noteInput.value.trim(),
-        link: linkInput.value.trim()
-      };
-
-      const originalText =
-        button?.textContent || "";
-
-      try {
-        if (button) {
-          button.disabled = true;
-          button.textContent =
-            "저장 중...";
-        }
-
-        setSyncStatus(
-          "저장 중...",
-          true
-        );
-
-        if (isConfigured) {
-          await api("/places", {
-            method: "POST",
-            body: JSON.stringify(item)
-          });
-        } else {
-          places.push({
-            id:
-              "local-place-" +
-              Date.now(),
-            ...item
-          });
-
-          persistLocal();
-        }
-
-        nameInput.value = "";
-        noteInput.value = "";
-        linkInput.value = "";
-
-        await loadAll(false);
-
-        setSyncStatus(
-          "저장 완료 ✓",
-          true
-        );
-
-        resetStatusLater();
-      } catch (error) {
-        console.error(
-          "식당 추가 오류",
-          error
-        );
-
-        setSyncStatus(
-          "저장 실패",
-          false
-        );
-
-        alert(
-          "식당 / 카페를 추가하지 못했습니다.\n\n" +
-            error.message
-        );
-      } finally {
-        if (button) {
-          button.disabled = false;
-          button.textContent =
-            originalText ||
-            "＋ 이 지역에 추가";
-        }
-      }
-    }
-
-    async function deletePlace(place) {
-      try {
-        if (isConfigured) {
-          await api(
-            "/places?id=eq." +
-              encodeURIComponent(
-                place.id
-              ),
-            {
-              method: "DELETE"
-            }
-          );
-        } else {
-          places =
-            places.filter(
-              item =>
-                item.id !== place.id
-            );
-
-          persistLocal();
-        }
-
-        await loadAll(false);
-      } catch (error) {
-        console.error(
-          "식당 삭제 오류",
-          error
-        );
-
-        alert(
-          "삭제하지 못했습니다.\n\n" +
-            error.message
-        );
-      }
-    }
-
-    let statusTimer = null;
-
-    function resetStatusLater() {
-      clearTimeout(statusTimer);
-
-      statusTimer = setTimeout(() => {
-        if (isConfigured) {
-          setSyncStatus(
-            "Supabase 연결됨 · 가족 공동 편집",
-            true
-          );
-        }
-      }, 1200);
-    }
-
-    document
-      .getElementById("newFood")
-      .addEventListener(
-        "keydown",
-        event => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            addFood();
-          }
-        }
-      );
-
-    loadAll();
-
-    setInterval(() => {
-      if (isConfigured) {
-        loadAll(false);
-      }
-    }, 5000);
-  </script>
+<body><div class="bg"></div><main class="wrap">
+<header class="hero"><a class="back" href="index.html">← 여행 일정으로 돌아가기</a><small>KIM&CHO FAMILY · TÜRKIYE 2026</small><h1>먹을 것 · 식당 · 카페</h1><p>가족 모두 같은 리스트를 함께 추가하고 체크하기</p><div id="syncStatus" class="status">연결 확인 중…</div></header>
+
+<h2>먹어볼 것</h2>
+<section class="card"><div id="foodList" class="food-grid"></div><div class="add"><input id="newFood" placeholder="먹어볼 음식 추가"><button onclick="addFood()">＋ 추가</button></div></section>
+
+<h2>지역별 식당 · 카페</h2>
+<nav class="nav">
+<a href="#newcity">이스탄불 신시가지</a><a href="#oldcity">이스탄불 구시가지</a><a href="#asia">이스탄불 아시아지구</a><a href="#cappadocia">카파도키아</a><a href="#antalya">안탈리아</a><a href="#pamukkale">파묵칼레</a>
+</nav>
+<div id="regions"></div>
+<p class="tip">※ 같은 링크를 보는 가족 모두에게 저장된 데이터가 공유됩니다.</p>
+</main>
+<script src="config.js"></script>
+<script>
+const cfg=window.TRIP_CONFIG||{};
+const API=(cfg.SUPABASE_URL||"").trim().replace(/\/+$/,"")+"/rest/v1";
+const APIKEY=(cfg.SUPABASE_KEY||"").trim();
+const isConfigured=Boolean(APIKEY&&cfg.SUPABASE_URL&&!cfg.SUPABASE_URL.includes("PASTE_")&&!APIKEY.includes("PASTE_"));
+
+function setSyncStatus(text,ok=true){const el=document.getElementById("syncStatus");if(!el)return;el.textContent=text;el.dataset.ok=ok?"1":"0";}
+
+async function api(path,opts={}){
+  const method=opts.method||"GET";
+  const headers={"apikey":APIKEY,"Content-Type":"application/json",...(opts.headers||{})};
+  if(["POST","PATCH","DELETE"].includes(method)) headers["Prefer"]=opts.prefer||"return=minimal";
+  const res=await fetch(API+path,{method,headers,body:opts.body});
+  if(!res.ok){const t=await res.text();console.error("Supabase API 오류",res.status,t);throw new Error(t||("HTTP "+res.status));}
+  if(res.status===204)return null;
+  const txt=await res.text();return txt?JSON.parse(txt):null;
+}
+
+const REGIONS=[
+["newcity","이스탄불 신시가지"],["oldcity","이스탄불 구시가지"],["asia","이스탄불 아시아지구"],
+["cappadocia","카파도키아"],["antalya","안탈리아"],["pamukkale","파묵칼레"]
+];
+const defaultFoods=["현지식 아침 · 카흐발트","쾨프테","케밥","카이막","와인","바클라바","베이란","고등어케밥"];
+const seedPlaces=[
+ {region:"newcity",name:"고등어케밥",type:"먹을 것",note:"이스탄불 신시가지에서 먹어보기",link:""},
+ {region:"newcity",name:"바클라바",type:"디저트",note:"디저트 후보",link:""},
+ {region:"asia",name:"베이란",type:"먹을 것",note:"양고기국밥",link:""}
+];
+let foods=[],places=[];
+
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function linkify(s){if(!s)return "";return /^https?:\/\//i.test(s)?s:"https://"+s;}
+function persistLocal(){localStorage.setItem("shared_foods",JSON.stringify(foods));localStorage.setItem("shared_places",JSON.stringify(places));}
+
+async function loadAll(showStatus=true){
+ if(!isConfigured){
+   setSyncStatus("로컬 모드 · config.js에 Supabase 키 필요",false);
+   foods=JSON.parse(localStorage.getItem("shared_foods")||"null")||defaultFoods.map((name,i)=>({id:"l"+i,name,checked:false}));
+   places=JSON.parse(localStorage.getItem("shared_places")||"null")||seedPlaces.map((p,i)=>({id:"lp"+i,...p}));
+   renderAll();return;
+ }
+ try{
+   const [f,p]=await Promise.all([
+     api("/food_items?select=*&order=created_at.asc"),
+     api("/places?select=*&order=created_at.asc")
+   ]);
+   foods=f||[];places=p||[];renderAll();
+   if(showStatus)setSyncStatus("Supabase 연결됨 · 가족 공동 편집",true);
+ }catch(e){setSyncStatus("DB 오류: "+e.message,false);console.error(e);}
+}
+
+function renderAll(){renderFoods();renderRegions();}
+
+function renderFoods(){
+ const root=document.getElementById("foodList");root.innerHTML="";
+ foods.forEach(f=>{
+  const el=document.createElement("label");el.className="food-item";
+  el.innerHTML=`<input type="checkbox" ${f.checked?"checked":""}><span>${esc(f.name)}</span><button type="button" class="x">×</button>`;
+  el.querySelector("input").onchange=e=>toggleFood(f,e.target.checked);
+  el.querySelector("button").onclick=e=>{e.preventDefault();e.stopPropagation();deleteFood(f)};
+  root.appendChild(el);
+ });
+}
+
+async function addFood(){
+ const input=document.getElementById("newFood"),name=input.value.trim();if(!name)return;
+ try{
+  setSyncStatus("저장 중…",true);
+  if(isConfigured)await api("/food_items",{method:"POST",body:JSON.stringify({name,checked:false})});
+  else{foods.push({id:"l"+Date.now(),name,checked:false});persistLocal();}
+  input.value="";await loadAll(false);setSyncStatus("저장 완료 ✓",true);
+ }catch(e){setSyncStatus("저장 실패",false);alert("추가하지 못했습니다.\n\n"+e.message)}
+}
+
+async function toggleFood(f,checked){
+ try{
+  if(isConfigured)await api("/food_items?id=eq."+encodeURIComponent(f.id),{method:"PATCH",body:JSON.stringify({checked})});
+  else{f.checked=checked;persistLocal();}
+  await loadAll(false);
+ }catch(e){alert("변경사항을 저장하지 못했습니다.\n\n"+e.message);await loadAll(false)}
+}
+
+async function deleteFood(f){
+ try{
+  if(isConfigured)await api("/food_items?id=eq."+encodeURIComponent(f.id),{method:"DELETE"});
+  else{foods=foods.filter(x=>x.id!==f.id);persistLocal();}
+  await loadAll(false);
+ }catch(e){alert("삭제하지 못했습니다.\n\n"+e.message)}
+}
+
+function renderRegions(){
+ const root=document.getElementById("regions");root.innerHTML="";
+ REGIONS.forEach(([id,label])=>{
+  const arr=places.filter(p=>p.region===id);
+  const sec=document.createElement("section");sec.className="region";sec.id=id;
+  sec.innerHTML=`<div class="region-head">${label}</div><div class="list" id="list-${id}"></div>
+  <div class="form"><div class="form-row"><input id="name-${id}" placeholder="식당 / 카페 이름"><select id="type-${id}"><option>식당</option><option>카페</option><option>디저트</option><option>와인</option><option>먹을 것</option></select></div>
+  <textarea id="note-${id}" placeholder="메뉴, 가격, 영업시간, 메모 등"></textarea><input id="link-${id}" placeholder="지도 / 블로그 링크 (선택)" style="margin-top:7px"><button type="button" class="add-btn" onclick="addPlace('${id}',this)">＋ 이 지역에 추가</button></div>`;
+  root.appendChild(sec);
+  const list=document.getElementById("list-"+id);
+  if(!arr.length)list.innerHTML=`<div class="empty">아직 저장한 곳이 없어요.</div>`;
+  arr.forEach(p=>{
+   const row=document.createElement("div");row.className="place";const url=linkify(p.link);
+   const meta=[p.type,p.note].filter(Boolean).map(esc).join(" · ");
+   row.innerHTML=`<div class="place-main"><div class="name">${esc(p.name)}</div>${meta?`<div class="meta">${meta}</div>`:""}</div>
+   <div class="actions">${url?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">링크</a>`:""}<button type="button">삭제</button></div>`;
+   row.querySelector("button").onclick=()=>deletePlace(p);list.appendChild(row);
+  });
+ });
+}
+
+async function addPlace(region,button){
+ const nameInput=document.getElementById("name-"+region);
+ const typeInput=document.getElementById("type-"+region);
+ const noteInput=document.getElementById("note-"+region);
+ const linkInput=document.getElementById("link-"+region);
+ const name=nameInput.value.trim();
+ if(!name){alert("식당 / 카페 이름을 입력해 주세요.");nameInput.focus();return;}
+ const item={region,name,type:typeInput.value,note:noteInput.value.trim(),link:linkInput.value.trim()};
+ const original=button.textContent;
+ try{
+  button.disabled=true;button.textContent="저장 중…";setSyncStatus("저장 중…",true);
+  if(isConfigured)await api("/places",{method:"POST",body:JSON.stringify(item)});
+  else{places.push({id:"lp"+Date.now(),...item});persistLocal();}
+  nameInput.value="";noteInput.value="";linkInput.value="";
+  await loadAll(false);setSyncStatus("저장 완료 ✓",true);
+ }catch(e){setSyncStatus("저장 실패",false);alert("식당 / 카페를 추가하지 못했습니다.\n\n"+e.message)}
+ finally{button.disabled=false;button.textContent=original;}
+}
+
+async function deletePlace(p){
+ try{
+  if(isConfigured)await api("/places?id=eq."+encodeURIComponent(p.id),{method:"DELETE"});
+  else{places=places.filter(x=>x.id!==p.id);persistLocal();}
+  await loadAll(false);
+ }catch(e){alert("삭제하지 못했습니다.\n\n"+e.message)}
+}
+
+document.getElementById("newFood").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addFood();}});
+loadAll();
+</script>
 </body>
 </html>
