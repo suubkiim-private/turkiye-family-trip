@@ -66,7 +66,12 @@ async function init(){
    db.from("food_items").select("*").order("created_at"),
    db.from("places").select("*").order("created_at")
  ]);
- if(f.error||p.error){setSyncStatus("DB 읽기 오류 · SQL 설정 확인",false); console.error(f.error,p.error);return;}
+ if(f.error||p.error){
+   const err = f.error || p.error;
+   setSyncStatus("DB 오류: " + (err.message || err.details || err.code || "알 수 없는 오류"), false);
+   console.error("Supabase food read error", f.error, p.error);
+   return;
+ }
  foods=f.data||[]; places=p.data||[]; renderAll();
  db.channel("trip-food-live")
    .on("postgres_changes",{event:"*",schema:"public",table:"food_items"},reloadFoods)
