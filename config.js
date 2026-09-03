@@ -5,6 +5,6 @@
 // service_role / secret key는 절대 넣지 마세요.
 
 window.TRIP_CONFIG = {
-  SUPABASE_URL: "https://qidrvzroujzrlqifhhnv.supabase.co/rest/v1/",
+  SUPABASE_URL: "https://qidrvzroujzrlqifhhnv.supabase.co",
   SUPABASE_KEY: "sb_publishable_7FGIXIgkzTQW6Nf-BFO0zw_qoj462ER"
 };
