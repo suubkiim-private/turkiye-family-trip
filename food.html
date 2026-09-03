@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>먹을 것 · 식당 · 카페 | Kim&Cho Family</title>
+<style>
+:root{--ink:#332c29;--muted:#7d716b;--paper:rgba(255,252,247,.97);--line:#eadfd5;--terra:#a85f43}
+*{box-sizing:border-box} body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:#ead9c7}
+.bg{position:fixed;inset:0;z-index:-2;background:linear-gradient(rgba(255,248,237,.38),rgba(247,231,210,.65)),linear-gradient(140deg,#efd5b5,#e3bc96)}
+.wrap{max-width:680px;margin:auto;padding:0 13px 44px}
+.hero{margin:0 -13px 14px;padding:28px 19px 24px;color:#fff;background:linear-gradient(135deg,rgba(126,83,61,.70),rgba(196,126,86,.65));border-radius:0 0 26px 26px}
+.back{display:inline-block;color:#fff;text-decoration:none;font-size:12px;opacity:.92;margin-bottom:12px}.hero small{letter-spacing:.12em;opacity:.84}.hero h1{font-size:28px;margin:5px 0}.hero p{margin:0;font-size:13px;opacity:.92}
+.status{margin-top:12px;display:inline-block;font-size:11px;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.17)}.status[data-ok="0"]{background:rgba(120,40,20,.28)}
+h2{font-size:19px;margin:22px 3px 10px}.card{background:var(--paper);border-radius:18px;padding:14px;box-shadow:0 5px 18px rgba(72,49,35,.08);margin-bottom:12px}
+.food-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.food-item{display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border:1px solid var(--line);border-radius:12px;font-size:13px;font-weight:750}.food-item input{width:17px;height:17px;accent-color:var(--terra)}.food-item span{flex:1}.x{border:0;background:transparent;color:#a48b80;font-size:16px;cursor:pointer}
+.add{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:10px}.add input,.form input,.form select,.form textarea{width:100%;border:1px solid #ded2c8;border-radius:9px;background:#fff;padding:9px 10px;font:inherit;font-size:12px;color:var(--ink)}.add button,.add-btn{border:0;background:var(--terra);color:#fff;border-radius:10px;padding:0 14px;font-weight:800;cursor:pointer}
+.nav{display:flex;gap:6px;overflow:auto;position:sticky;top:0;z-index:5;padding:9px 0;background:rgba(234,217,199,.92);backdrop-filter:blur(8px)}.nav a{flex:none;text-decoration:none;color:#594d47;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:700}
+.region{background:var(--paper);border-radius:18px;overflow:hidden;margin:11px 0;scroll-margin-top:58px;box-shadow:0 5px 18px rgba(72,49,35,.08)}.region-head{padding:13px 15px;background:rgba(244,235,226,.9);font-size:17px;font-weight:850}.list{padding:7px 13px}.place{padding:10px 2px;border-bottom:1px dashed #e9dfd6;display:grid;grid-template-columns:1fr auto;gap:7px}.place:last-child{border-bottom:0}.name{font-size:14px;font-weight:800}.meta{font-size:12px;color:var(--muted);margin-top:2px}.actions{display:flex;gap:5px}.actions a,.actions button{border:0;background:#f3ebe4;color:#7c4a38;border-radius:999px;padding:5px 7px;font-size:10px;text-decoration:none;cursor:pointer}
+.form{margin:8px 13px 13px;padding:11px;background:#f8f3ed;border-radius:13px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}.form textarea{min-height:60px}.form .add-btn{width:100%;padding:9px;margin-top:7px}.empty{font-size:12px;color:#91847c;padding:13px 2px}.tip{font-size:11px;color:#786c65;margin:10px 3px}
+@media(max-width:420px){.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body><div class="bg"></div><main class="wrap">
+<header class="hero"><a class="back" href="index.html">← 여행 일정으로 돌아가기</a><small>KIM&CHO FAMILY · TÜRKIYE 2026</small><h1>먹을 것 · 식당 · 카페</h1><p>가족 모두 같은 리스트를 함께 추가하고 체크하기</p><div id="syncStatus" class="status">연결 확인 중…</div></header>
+
+<h2>먹어볼 것</h2>
+<section class="card"><div id="foodList" class="food-grid"></div><div class="add"><input id="newFood" placeholder="먹어볼 음식 추가"><button onclick="addFood()">＋ 추가</button></div></section>
+
+<h2>지역별 식당 · 카페</h2>
+<nav class="nav">
+<a href="#newcity">이스탄불 신시가지</a><a href="#oldcity">이스탄불 구시가지</a><a href="#asia">이스탄불 아시아지구</a><a href="#cappadocia">카파도키아</a><a href="#antalya">안탈리아</a><a href="#pamukkale">파묵칼레</a>
+</nav>
+<div id="regions"></div>
+<p class="tip">※ Supabase 연결 전에는 이 기기에서만 임시 저장됩니다. 연결 후에는 같은 링크를 보는 가족 모두에게 데이터가 공유됩니다.</p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script><script src="shared.js"></script>
+<script>
+const REGIONS=[
+["newcity","이스탄불 신시가지"],["oldcity","이스탄불 구시가지"],["asia","이스탄불 아시아지구"],
+["cappadocia","카파도키아"],["antalya","안탈리아"],["pamukkale","파묵칼레"]
+];
+
+const defaultFoods=["현지식 아침 · 카흐발트","쾨프테","케밥","카이막","와인","바클라바","베이란","고등어케밥"];
+const seedPlaces=[
+ {region:"newcity",name:"고등어케밥",type:"먹을 것",note:"이스탄불 신시가지에서 먹어보기",link:""},
+ {region:"newcity",name:"바클라바",type:"디저트",note:"디저트 후보",link:""},
+ {region:"asia",name:"베이란",type:"먹을 것",note:"양고기국밥",link:""}
+];
+
+let foods=[], places=[];
+
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function linkify(s){if(!s)return ""; return /^https?:\/\//i.test(s)?s:"https://"+s;}
+
+async function init(){
+ if(!db){
+   setSyncStatus("로컬 모드 · config.js에 Supabase 키 필요",false);
+   foods=JSON.parse(localStorage.getItem("shared_foods")||"null")||defaultFoods.map((name,i)=>({id:"l"+i,name,checked:false}));
+   places=JSON.parse(localStorage.getItem("shared_places")||"null")||seedPlaces.map((p,i)=>({id:"lp"+i,...p}));
+   renderAll(); return;
+ }
+ setSyncStatus("Supabase 연결됨 · 가족 공동 편집",true);
+ const [f,p]=await Promise.all([
+   db.from("food_items").select("*").order("created_at"),
+   db.from("places").select("*").order("created_at")
+ ]);
+ if(f.error||p.error){setSyncStatus("DB 읽기 오류 · SQL 설정 확인",false); console.error(f.error,p.error);return;}
+ foods=f.data||[]; places=p.data||[]; renderAll();
+ db.channel("trip-food-live")
+   .on("postgres_changes",{event:"*",schema:"public",table:"food_items"},reloadFoods)
+   .on("postgres_changes",{event:"*",schema:"public",table:"places"},reloadPlaces)
+   .subscribe();
+}
+async function reloadFoods(){const {data}=await db.from("food_items").select("*").order("created_at");foods=data||[];renderFoods();}
+async function reloadPlaces(){const {data}=await db.from("places").select("*").order("created_at");places=data||[];renderRegions();}
+function persistLocal(){localStorage.setItem("shared_foods",JSON.stringify(foods));localStorage.setItem("shared_places",JSON.stringify(places));}
+
+function renderAll(){renderFoods();renderRegions();}
+function renderFoods(){
+ const root=document.getElementById("foodList");root.innerHTML="";
+ foods.forEach(f=>{
+  const el=document.createElement("label");el.className="food-item";
+  el.innerHTML=`<input type="checkbox" ${f.checked?"checked":""}><span>${esc(f.name)}</span><button type="button" class="x">×</button>`;
+  const cb=el.querySelector("input"), del=el.querySelector("button");
+  cb.onchange=()=>toggleFood(f,cb.checked);
+  del.onclick=e=>{e.preventDefault();e.stopPropagation();deleteFood(f)};
+  root.appendChild(el);
+ });
+}
+async function addFood(){
+ const input=document.getElementById("newFood"),name=input.value.trim();if(!name)return;
+ if(db){const {error}=await db.from("food_items").insert({name,checked:false});if(error)return alert(error.message);}
+ else{foods.push({id:"l"+Date.now(),name,checked:false});persistLocal();renderFoods();}
+ input.value="";
+}
+async function toggleFood(f,checked){
+ if(db){const {error}=await db.from("food_items").update({checked}).eq("id",f.id);if(error)alert(error.message);}
+ else{f.checked=checked;persistLocal();}
+}
+async function deleteFood(f){
+ if(db){const {error}=await db.from("food_items").delete().eq("id",f.id);if(error)alert(error.message);}
+ else{foods=foods.filter(x=>x.id!==f.id);persistLocal();renderFoods();}
+}
+
+function renderRegions(){
+ const root=document.getElementById("regions");root.innerHTML="";
+ REGIONS.forEach(([id,label])=>{
+  const arr=places.filter(p=>p.region===id);
+  const sec=document.createElement("section");sec.className="region";sec.id=id;
+  sec.innerHTML=`<div class="region-head">${label}</div><div class="list" id="list-${id}"></div>
+  <div class="form"><div class="form-row"><input id="name-${id}" placeholder="식당 / 카페 이름"><select id="type-${id}"><option>식당</option><option>카페</option><option>디저트</option><option>와인</option><option>먹을 것</option></select></div>
+  <textarea id="note-${id}" placeholder="메뉴, 가격, 영업시간, 메모 등"></textarea><input id="link-${id}" placeholder="지도 / 블로그 링크 (선택)" style="margin-top:7px"><button class="add-btn" onclick="addPlace('${id}')">＋ 이 지역에 추가</button></div>`;
+  root.appendChild(sec);
+  const list=document.getElementById("list-"+id);
+  if(!arr.length) list.innerHTML=`<div class="empty">아직 저장한 곳이 없어요.</div>`;
+  arr.forEach(p=>{
+   const row=document.createElement("div");row.className="place";
+   const url=linkify(p.link);
+   row.innerHTML=`<div><div class="name">${esc(p.name)}</div><div class="meta">${esc(p.type)}${p.note?" · "+esc(p.note):""}</div></div>
+   <div class="actions">${url?`<a href="${esc(url)}" target="_blank">링크</a>`:""}<button>삭제</button></div>`;
+   row.querySelector("button").onclick=()=>deletePlace(p);
+   list.appendChild(row);
+  });
+ });
+}
+async function addPlace(region){
+ const name=document.getElementById("name-"+region).value.trim();if(!name)return alert("이름을 입력해 주세요.");
+ const item={region,name,type:document.getElementById("type-"+region).value,note:document.getElementById("note-"+region).value.trim(),link:document.getElementById("link-"+region).value.trim()};
+ if(db){const {error}=await db.from("places").insert(item);if(error)return alert(error.message);}
+ else{places.push({id:"lp"+Date.now(),...item});persistLocal();renderRegions();}
+ ["name","note","link"].forEach(k=>document.getElementById(k+"-"+region).value="");
+}
+async function deletePlace(p){
+ if(db){const {error}=await db.from("places").delete().eq("id",p.id);if(error)alert(error.message);}
+ else{places=places.filter(x=>x.id!==p.id);persistLocal();renderRegions();}
+}
+document.getElementById("newFood").addEventListener("keydown",e=>{if(e.key==="Enter")addFood();});
+init();
+</script></body></html>
